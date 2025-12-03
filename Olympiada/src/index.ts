@@ -18,40 +18,57 @@ ledStrip.set(6, colors.white);
 
 ledStrip.show(); 
 
+
 let on: Number = 0;
 
 gpio.pinMode(robutek.Pins.ButtonRight, gpio.PinMode.INPUT);
 
 gpio.on("falling", robutek.Pins.ButtonRight, () => {
-  let on: Number = 1;
+   on = 1;
+   console.log(on);
 });
 
 
-gpio.pinMode(robutek.Pins.ButtonRight, gpio.PinMode.INPUT);
+gpio.pinMode(robutek.Pins.ButtonLeft, gpio.PinMode.INPUT);
 
 gpio.on("falling", robutek.Pins.ButtonLeft, () => {
-  let on: Number = 0;
+   on = 0;
+   console.log(on);
 }); 
+// zapinani a vypinani pomoci tlacitka
+robutek.leftMotor.move();
+robutek.rightMotor.move();  
 
+async function main (){
 
-while(on = 1 ) {
-    const l = robutek.readSensor("LineFL");
-    const r = robutek.readSensor("LineFR");
-    if(l < thresh) {
-        robutek.leftMotor.setSpeed(100);
-        robutek.rightMotor.setSpeed(10);
-    } else if(r < thresh) {
-        robutek.leftMotor.setSpeed(10);
-        robutek.rightMotor.setSpeed(100);
-    } else {
-        robutek.leftMotor.setSpeed(100);
-        robutek.leftMotor.setSpeed(100);
+  while(true) {
+
+    if(on == 1) {
+        const l = robutek.readSensor("LineFL");
+        const r = robutek.readSensor("LineFR");
+        if(l < thresh) {
+            robutek.leftMotor.setSpeed(100);
+            robutek.rightMotor.setSpeed(10);
+        } else if(r < thresh) {
+            robutek.leftMotor.setSpeed(10);
+            robutek.rightMotor.setSpeed(100);
+        } else {
+            robutek.leftMotor.setSpeed(100);
+            robutek.leftMotor.setSpeed(100);
+        }
+        await sleep(10);
+        console.log(`l: ${l}, r: ${r}`);
+    }
+    else {
+        robutek.leftMotor.setSpeed(0);
+        robutek.rightMotor.setSpeed(0);  
+
     }
     await sleep(10);
-    console.log(`l: ${l}, r: ${r}`);
+  }
 }
 
-
+main().catch(console.error); 
 
 
 
