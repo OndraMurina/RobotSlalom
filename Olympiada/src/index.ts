@@ -96,3 +96,4 @@ yastaven9 terminalu ctrl c
 shift a tabulator nebo jen tabulator cely texty dolevanebo doprava
 */
 //prohodit l a r v while true
+// zmena test 
