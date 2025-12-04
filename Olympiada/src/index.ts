@@ -21,6 +21,7 @@ ledStrip.show();
 
 let on: Number = 0;
 
+
 gpio.pinMode(robutek.Pins.ButtonRight, gpio.PinMode.INPUT);
 
 gpio.on("falling", robutek.Pins.ButtonRight, () => {
@@ -38,6 +39,8 @@ gpio.on("falling", robutek.Pins.ButtonLeft, () => {
 // zapinani a vypinani pomoci tlacitka
 robutek.leftMotor.move();
 robutek.rightMotor.move();  
+
+
 
 async function main (){
 
@@ -75,7 +78,7 @@ main().catch(console.error);
 
 
 
-// do příště si chci udělat tlačítko, co spusti a zastaví program
+// Robot sjizdi, nenajede na caru
 // komentare: minimum a maximum speed konstanta, hodnoty pojmenovany, 
 // vypsat co se srobotem deje(vzpis senzoru) 
 // sledovat rychlost kol pomoci wifi
