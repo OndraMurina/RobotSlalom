@@ -19,7 +19,11 @@ ledStrip.set(6, colors.white);
 ledStrip.show(); 
 
 
-let on: Number = 0;
+console.log("Robot se zapnul")
+
+
+
+ let on: Number = 0;
 
 
 gpio.pinMode(robutek.Pins.ButtonRight, gpio.PinMode.INPUT);
@@ -36,42 +40,43 @@ gpio.on("falling", robutek.Pins.ButtonLeft, () => {
    on = 0;
    console.log(on);
 }); 
-// zapinani a vypinani pomoci tlacitka
-robutek.leftMotor.move();
-robutek.rightMotor.move();  
 
 
 
-async function main (){
+const setpoint = 512;
+let speed = 789;
+let k_p = 0.96;
+let k_d = 4.86;
 
-  while(true) {
-
-    if(on == 1) {
-        const l = robutek.readSensor("LineFL");
-        const r = robutek.readSensor("LineFR");
-        if(l < thresh) {
-            robutek.leftMotor.setSpeed(100);
-            robutek.rightMotor.setSpeed(10);
-        } else if(r < thresh) {
-            robutek.leftMotor.setSpeed(10);
-            robutek.rightMotor.setSpeed(100);
-        } else {
-            robutek.leftMotor.setSpeed(100);
-            robutek.leftMotor.setSpeed(100);
-        }
-        await sleep(10);
-        console.log(`l: ${l}, r: ${r}`);
+function move(steering: number, speed: number) {
+    if(steering < 0) {
+        robutek.leftMotor.setSpeed((1 + steering) * speed)
+        robutek.rightMotor.setSpeed(speed)
+    } else if(steering > 0) {
+        robutek.rightMotor.setSpeed((1 - steering) * speed)
+        robutek.leftMotor.setSpeed(speed)
     }
-    else {
-        robutek.leftMotor.setSpeed(0);
-        robutek.rightMotor.setSpeed(0);  
-
-    }
-    await sleep(10);
-  }
 }
 
-main().catch(console.error); 
+async function main() {
+    let previous_error = 0;
+    robutek.leftMotor.move()
+    robutek.rightMotor.move()
+    console.log("start")
+    while(true) {
+        const l = robutek.readSensor("LineFR");
+        let error = setpoint - l;
+        let normalized_error = error / 512;
+        let speed_of_change = normalized_error - previous_error;
+        move(normalized_error * k_p + speed_of_change * k_d, speed);
+        previous_error = normalized_error;
+        await sleep(1);
+    }
+}
+
+main().catch(console.error);
+
+
 
 
 
@@ -96,4 +101,55 @@ yastaven9 terminalu ctrl c
 shift a tabulator nebo jen tabulator cely texty dolevanebo doprava
 */
 //prohodit l a r v while true
-//udelat senzory-do tunelu na zastaveni robutka
+// zmena test 
+
+
+//zmena 4.12.2025:
+//pridal(zkopiroval) jsem kod z robotarny, nic jsem neupravoval, predeslej kod je dole. 
+//
+
+
+
+
+
+// zapinani a vypinani pomoci tlacitka
+// robutek.leftMotor.move();
+// robutek.rightMotor.move();  
+
+
+// //ovlada levo a v pravo, kam pojede
+// let slowS: number = 25;
+// let middleS: number = 100
+// let fastS: number = 200
+
+// async function main (){
+
+//   while(true) {
+
+//     if(on == 1) {
+//         const l = robutek.readSensor("LineFL");
+//         const r = robutek.readSensor("LineFR");
+//         if(l < thresh) {
+//             robutek.leftMotor.setSpeed(fastS);
+//             robutek.rightMotor.setSpeed(slowS);
+//         } else if(r < thresh) {
+//             robutek.leftMotor.setSpeed(slowS);
+//             robutek.rightMotor.setSpeed(fastS);
+//         } else {
+//             robutek.leftMotor.setSpeed(fastS);
+//             robutek.leftMotor.setSpeed(fastS);
+//         }
+//         await sleep(10);
+//         console.log(`l: ${l}, r: ${r}`);
+//     }
+//     else {
+//         robutek.leftMotor.setSpeed(0);
+//         robutek.rightMotor.setSpeed(0);  
+
+//     }
+//     await sleep(10);
+//   }
+// }
+
+// main().catch(console.error); 
+
